@@ -5,6 +5,7 @@ from agents import (
     Runner,
     SQLiteSession,
     InputGuardrailTripwireTriggered,
+    OutputGuardrailTripwireTriggered,
 )
 from openai import OpenAI
 from models import UserAccountContext
@@ -77,8 +78,17 @@ async def run_agent(message):
                         text_placeholder = st.empty()
                         response = ""
 
-        except InputGuardrailTripwireTriggered:
-            st.write("I can't help you with that.")
+        except InputGuardrailTripwireTriggered as triggered:
+            guardrail_result = triggered.guardrail_result.output
+            st.write(
+                "I'm restaurant chat-bot. I'm sorry but I can't help you with that."
+            )
+            st.write(guardrail_result.output_info.reason)
+
+        except OutputGuardrailTripwireTriggered as triggered:
+            guardrail_result = triggered.guardrail_result.output
+            st.write("Unfortunately, I couldn't answer with that question.")
+            st.write(guardrail_result.output_info.reason)
 
 
 message = st.chat_input(

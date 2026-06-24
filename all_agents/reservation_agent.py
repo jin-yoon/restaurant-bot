@@ -5,6 +5,7 @@ from tools import (
     make_reservation,
     lookup_reservation,
 )
+from guardrails import input_off_topic_guardrail, output_off_topic_guardrail
 
 
 def dynamic_reservation_agent_instructions(
@@ -54,5 +55,7 @@ reservation_agent = Agent(
         make_reservation,
         lookup_reservation,
     ],
-    handoffs=[],
+    output_guardrails=[
+        output_off_topic_guardrail,
+    ],
 )

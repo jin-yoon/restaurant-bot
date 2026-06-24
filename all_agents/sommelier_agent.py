@@ -5,6 +5,7 @@ from tools import (
     wine_pairing_for_tapas,
     describe_wine,
 )
+from guardrails import input_off_topic_guardrail, output_off_topic_guardrail
 
 
 def dynamic_sommelier_agent_instructions(
@@ -52,5 +53,7 @@ sommelier_agent = Agent(
         wine_pairing_for_tapas,
         describe_wine,
     ],
-    handoffs=[],
+    output_guardrails=[
+        output_off_topic_guardrail,
+    ],
 )

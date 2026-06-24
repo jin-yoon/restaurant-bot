@@ -5,6 +5,7 @@ from tools import (
     add_item_to_order,
     confirm_customer_order,
 )
+from guardrails import input_off_topic_guardrail, output_off_topic_guardrail
 
 
 def dynamic_order_agent_instructions(
@@ -48,5 +49,7 @@ order_agent = Agent(
         add_item_to_order,
         confirm_customer_order,
     ],
-    handoffs=[],
+    output_guardrails=[
+        output_off_topic_guardrail,
+    ],
 )

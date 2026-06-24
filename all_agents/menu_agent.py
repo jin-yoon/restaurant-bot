@@ -1,11 +1,11 @@
 from agents import Agent, RunContextWrapper
-from all_agents import order_agent, reservation_agent, sommelier_agent
 from models import UserAccountContext
 from tools import (
     search_tapas_menu,
     get_menu_details,
     check_food_allergy,
 )
+from guardrails import input_off_topic_guardrail, output_off_topic_guardrail
 
 
 def dynamic_menu_agent_instructions(
@@ -47,5 +47,7 @@ menu_agent = Agent(
         get_menu_details,
         check_food_allergy,
     ],
-    handoffs=[],
+    output_guardrails=[
+        output_off_topic_guardrail,
+    ],
 )

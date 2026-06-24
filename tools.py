@@ -267,3 +267,66 @@ def describe_wine(wine_name: str) -> str:
         f"Flavor: Balanced acidity, fruity aroma\n"
         f"Pairs well with Spanish tapas."
     )
+
+
+@function_tool
+def check_refund_policy(order_id: str) -> str:
+    """
+    Check whether an order is eligible for refund.
+
+    Args:
+        order_id: Customer order ID
+    """
+
+    # mock data
+    refund_available = True
+
+    if refund_available:
+        return (
+            f"Order {order_id} is eligible for refund. "
+            "Refund can be processed within 3 business days."
+        )
+
+    return (
+        f"Order {order_id} is not eligible for refund " "according to current policy."
+    )
+
+
+@function_tool
+def offer_discount(customer_id: str) -> str:
+    """
+    Provide a compensation discount for unhappy customers.
+
+    Args:
+        customer_id: Customer ID
+    """
+
+    return f"Customer {customer_id} received a 20% apology discount coupon."
+
+
+@function_tool
+def request_manager_callback(customer_id: str, reason: str) -> str:
+    """
+    Request a manager callback for serious complaints.
+
+    Args:
+        customer_id: Customer ID
+        reason: Reason for escalation
+    """
+
+    return (
+        f"Manager callback requested for customer {customer_id}. " f"Reason: {reason}"
+    )
+
+
+@function_tool
+def escalate_issue(customer_id: str, severity: str) -> str:
+    """
+    Escalate critical customer complaints.
+
+    Args:
+        customer_id: Customer ID
+        severity: low, medium, high, critical
+    """
+
+    return f"Issue escalated. " f"Customer: {customer_id}, " f"Severity: {severity}"
