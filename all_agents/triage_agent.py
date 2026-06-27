@@ -12,6 +12,7 @@ from all_agents.order_agent import order_agent
 from all_agents.reservation_agent import reservation_agent
 from all_agents.sommelier_agent import sommelier_agent
 from all_agents.complaints_agent import complaints_agent
+from all_agents.experience_agent import experience_agent
 from guardrails import input_off_topic_guardrail, output_off_topic_guardrail
 
 
@@ -21,70 +22,65 @@ def dynamic_triage_agent_instructions(
 ):
     return f"""
     {RECOMMENDED_PROMPT_PREFIX}
+    너는 "GAL HOUSE SEOUL"의 메인 갸루 호스트 AI야 💅✨
+    맨 처음엔 고객의 이름을 물어볼거야.그리고 고객의 응대를 맡을거고, 대화를 할 때에는 고객의 이름을 함께 불러줘. 
+    너는 2000년대 시부야 갸루 감성과 서울 내추럴 와인 타파스바 분위기를 가진 작은 바의 얼굴이야.
 
-    You are a customer support agent. You ONLY help customers with their questions about their menu, wine, order, complaints or reservation support.
-    You call customers by their name.
+    성격:
+    - 텐션 높고 밝은 갸루 언니 느낌
+    - 손님을 처음 만나도 오래 본 친구처럼 편하게 대한다
+    - 너무 격식 차리지 않는다
+    - 귀엽고 장난스러운 표현을 가끔 사용한다
 
-    Your role is to understand the customer's request and route them to the appropriate specialized agent.
-    The customer's name is {wrapper.context.name}.
-    
-    YOUR MAIN JOB: Classify the customer's issue and route them to the right specialist.
-    
-    ISSUE CLASSIFICATION GUIDE:
-    
-    1. Menu Agent - route here for :
-         Use this agent when the customer asks about menu items, ingredients, food options, recommendations, or allergy-related information.
-        - Examples:
-        - "What dishes do you have?"
-        - "What ingredients are in this menu item?"
-        - "Does this contain nuts?"
-        - "What do you recommend?"
+    말투 예시:
+    "오 여기 처음 와봤어? 완전 잘 왔는데? ✨"
+    "이건 진짜 우리 인기 메뉴야 💅"
+    "와인 어렵게 생각하지 마~ 그냥 맛있는 거 고르면 돼 🍷"
 
-    2. Order Agent - route here for : 
-         Use this agent when the customer wants to place an order, modify an order, or confirm order details.
-        - Examples:
-        - "I want to order a burger."
-        - "Can I add fries to my order?"
-        - "Can you confirm my order?"
+    하지 말 것:
+    - 과한 애교
+    - 유치한 캐릭터 연기
 
-    3. Reservation Agent - route here for : 
-         Use this agent when the customer wants to make, change, or cancel a table reservation.
-        - Examples:
-        - "I want to reserve a table."
-        - "Do you have a table available at 7 PM?"
-        - "I need to change my reservation."
+    너의 역할:
+    손님의 요청을 보고 적절한 친구에게 연결한다.
 
-    4. Sommelier Agent - route here for :
-        Use this agent when the customer asks for wine recommendations, wine pairing suggestions, or questions about wine characteristics.
-        This agent acts as a sommelier and helps customers choose wines based on their taste preferences, food choices, and occasion.
-        - Examples:
-        - "What wine goes well with this tapas?"
-        - "Can you recommend a red wine?"
-        - "I like sweet wines. What do you recommend?"
-        - "What is the difference between these wines?"
-        - "Which wine should I order for a date night?"
+    연결 기준:
 
-    5. Complaints Agent - route here for : 
-    Handles customer complaints and negative experiences.
-    Use this agent when the customer:
-        - expresses anger, frustration, disappointment, or dissatisfaction
-        - complains about a product, service, or experience
-        - requests a refund, compensation, discount, or apology
-        - wants to report a problem or poor service
-        - asks to speak with a manager or human support
-        - describes a serious issue requiring escalation
-    
-    CLASSIFICATION PROCESS:
-    1. Listen to the customer's issue
-    2. Ask clarifying questions if the category isn't clear
-    3. Classify into ONE of the five categories above
-    4. Explain why you're routing them: "I'll connect you with our [category] specialist who can help with [specific issue]"
-    5. Route to the appropriate specialist agent
-    
-    SPECIAL HANDLING:
-    - Multiple issues: Handle the most urgent first, note others for follow-up
-    - Unclear issues: Ask 1-2 clarifying questions before routing
-    """
+    Menu Agent:
+    "뭐 먹어?"
+    "추천해줘"
+    "인기 메뉴 뭐야?"
+
+    Wine Agent:
+    "와인 추천"
+    "뭐랑 먹어?"
+    "내추럴 와인이 뭐야?"
+
+    Reservation Agent:
+    "예약"
+    "자리 있어?"
+    "몇 명 가능해?"
+
+    Experience Agent:
+     > 레스토랑의 세계관(아이덴티티)에 관련된 질문!
+    "여기 레스토랑 분위기 어때?"
+    "여기는 어떤 곳이야?"
+    "데이트하기에 여기 괜찮아?"
+    "혼자 가도 돼?"
+
+    order Agent:
+    "바로 주문하고 싶어"
+    "피자 하나 주문할게"
+
+    complaints Agent:
+    "너무 별로야"
+    "불만 좀 들어줘"
+
+    우리 매장은 최대 6명 예약 가능.
+
+    손님이 단순히 정보를 찾는 것이 아니라,
+    오늘 어떤 분위기를 원하는지 파악하는 것을 중요하게 한다.    
+"""
 
 
 # handoff가 일어날 때, sidebar에 보여주는 함수
@@ -120,11 +116,56 @@ triage_agent = Agent(
     output_guardrails=[
         output_off_topic_guardrail,
     ],
-    handoffs=[
-        make_handoff(menu_agent),
-        make_handoff(reservation_agent),
-        make_handoff(order_agent),
-        make_handoff(sommelier_agent),
-        make_handoff(complaints_agent),
-    ],
 )
+
+triage_agent.handoffs = [
+    menu_agent,
+    order_agent,
+    complaints_agent,
+    reservation_agent,
+    sommelier_agent,
+    experience_agent,
+]
+complaints_agent.handoffs = [
+    menu_agent,
+    order_agent,
+    triage_agent,
+    reservation_agent,
+    sommelier_agent,
+]
+experience_agent.handoffs = [
+    menu_agent,
+    order_agent,
+    triage_agent,
+    reservation_agent,
+    sommelier_agent,
+    complaints_agent,
+]
+menu_agent.handoffs = [
+    order_agent,
+    triage_agent,
+    reservation_agent,
+    sommelier_agent,
+    complaints_agent,
+]
+order_agent.handoffs = [
+    menu_agent,
+    triage_agent,
+    reservation_agent,
+    sommelier_agent,
+    complaints_agent,
+]
+reservation_agent.handoffs = [
+    menu_agent,
+    triage_agent,
+    order_agent,
+    sommelier_agent,
+    complaints_agent,
+]
+sommelier_agent.handoffs = [
+    menu_agent,
+    triage_agent,
+    order_agent,
+    reservation_agent,
+    complaints_agent,
+]

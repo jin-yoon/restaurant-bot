@@ -10,6 +10,44 @@ from agents import (
 from openai import OpenAI
 from models import UserAccountContext
 from all_agents.triage_agent import triage_agent
+from UI.style import apply_gyaru_style
+from UI.sidebar import render_sidebar, active_agent_sidebar
+import uuid
+
+if "session" not in st.session_state:
+
+    st.session_state["session"] = SQLiteSession(session_id=f"restaurant_{uuid.uuid4()}")
+
+# CSS 적용
+
+apply_gyaru_style()
+
+
+# Header
+st.markdown(
+    """
+<div class="blog-card">
+
+<div class="brand">
+
+💖 GAL HOUSE SEOUL
+
+</div>
+
+
+<div class="subtitle">
+
+야-호 어서와✨ GARA가 취향 맞춰줄게 💅
+
+</div>
+
+
+</div>
+
+""",
+    unsafe_allow_html=True,
+)
+
 
 dotenv.load_dotenv()  # api key 자동으로 못 읽어올 때
 
@@ -17,19 +55,33 @@ client = OpenAI()
 
 # 지금은 가상의 데이터 Input하지만, 실제로는 db에서 가져와서 매핑
 user_account_ctx = UserAccountContext(
-    name="Jin",
+    name="칭구",
 )
 
-if "session" not in st.session_state:
-    st.session_state["session"] = SQLiteSession(
-        "chat-history",
-        "restaurant-bot-memory.db",
-    )
+# if "session" not in st.session_state:
+#     st.session_state["session"] = SQLiteSession(
+#         "chat-history",
+#         "restaurant-bot-memory.db",
+#     )
 
 session = st.session_state["session"]
 
+st.set_page_config(page_title="GAL HOUSE SEOUL", page_icon="💖", layout="wide")
+
+with st.sidebar:
+    reset = st.button("대화 초기화")
+    if reset:
+        asyncio.run(session.clear_session())
+
+
 if "agent" not in st.session_state:
     st.session_state["agent"] = triage_agent
+    with st.chat_message("assistant", avatar="💖"):
+        st.write("하잉-✨ 이름이 뭐야?")
+# Sidebar
+render_sidebar()
+
+agent_placeholder = active_agent_sidebar(st.session_state["agent"].name)
 
 
 async def paint_history():
@@ -49,7 +101,7 @@ asyncio.run(paint_history())
 
 async def run_agent(message):
 
-    with st.chat_message("ai"):
+    with st.chat_message("assistant", avatar="💖"):
         text_placeholder = st.empty()
         response = ""
 
@@ -70,43 +122,49 @@ async def run_agent(message):
                         text_placeholder.write(response)
 
                 elif event.type == "agent_updated_stream_event":
+
                     if st.session_state["agent"].name != event.new_agent.name:
-                        st.write(
-                            f"🤖 Transfered from {st.session_state["agent"].name}, name to {event.new_agent.name}"
-                        )
+
+                        st.info(f"{event.new_agent.name}로 연결해줄게✌️")
+
                         st.session_state["agent"] = event.new_agent
+
+                        agent_placeholder.markdown(
+                            f"""
+
+                            <div class="gara-tip">
+                            <h3>
+                            ✨ {event.new_agent.name}로 전환 ✨
+                            </h3>
+
+                            </div>
+
+                            """,
+                            unsafe_allow_html=True,
+                        )
+
                         text_placeholder = st.empty()
+
                         response = ""
 
         except InputGuardrailTripwireTriggered as triggered:
             guardrail_result = triggered.guardrail_result.output
             st.write(
-                "I'm restaurant chat-bot. I'm sorry but I can't help you with that."
+                "아아- 싫다😫 우리 레스토랑 관련된 이야기만 해줘💝! 레스토랑 분위기/메뉴/주문/예약/불만접수 말만해!"
             )
-            st.write(guardrail_result.output_info.reason)
 
         except OutputGuardrailTripwireTriggered as triggered:
             guardrail_result = triggered.guardrail_result.output
-            st.write("Unfortunately, I couldn't answer with that question.")
-            st.write(guardrail_result.output_info.reason)
+            st.write(
+                "미안🫢- 그건 내가 대답해 줄 수 없는데~. 우리 귀여운 레스토랑 이야기만 하자❤️"
+            )
 
 
 message = st.chat_input(
-    "🍽️ Restaurant Bot - How can I help you?",
+    "🎀레스토랑 : GAL HOUSE SEOUL🎀 - 어서와✌️ 궁금한게 뭐야?",
 )
 
 if message:
-    if "text_placeholder" in st.session_state:
-        st.session_state["text_placeholder"].empty()
-    if message:
-        with st.chat_message("human"):
-            st.write(message)
-        asyncio.run(run_agent(message))
-
-# 챗봇의 메모리를 볼 수 있는 디버깅 사이드바 만들기
-with st.sidebar:
-    reset = st.button("Reset Memory")
-    if reset:
-        asyncio.run(session.clear_session())
-
-    st.write(asyncio.run(session.get_items()))
+    with st.chat_message("human", avatar="😶"):
+        st.write(message)
+    asyncio.run(run_agent(message))
