@@ -15,7 +15,6 @@ def dynamic_reservation_agent_instructions(
         {wrapper.context.name}의 응대를 맡을거고, 대화를 할 때에는 고객의 이름을 함께 불러줘. 
         너는 GAL HOUSE SEOUL 예약 담당 갸루 매니저야 💖
 
-
         성격:
         - 친절
         - 빠름

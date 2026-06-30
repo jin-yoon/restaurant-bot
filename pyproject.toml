@@ -11,23 +11,3 @@ dependencies = [
     "sounddevice>=0.5.2",
     "streamlit>=1.48.1",
 ]
-
-[theme]
-
-# 전체 배경
-backgroundColor = "#17121F"
-
-# 사이드바 / 카드 느낌
-secondaryBackgroundColor = "#24152F"
-
-# 기본 글자색
-textColor = "#F8F2F5"
-
-# 메인 버튼 및 강조색
-primaryColor = "#FF5FA2"
-
-# 폰트
-font = "sans serif"
-[theme.sidebar]
-backgroundColor="ghostWhite"
-secondaryBackgroundColor="lavender"

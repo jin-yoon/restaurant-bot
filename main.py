@@ -150,7 +150,7 @@ async def run_agent(message):
         except InputGuardrailTripwireTriggered as triggered:
             guardrail_result = triggered.guardrail_result.output
             st.write(
-                "아아- 싫다😫 우리 레스토랑 관련된 이야기만 해줘💝! 레스토랑 분위기/메뉴/주문/예약/불만접수 말만해!"
+                "우리 레스토랑 관련된 이야기를 해줘💝! 레스토랑 분위기/메뉴/주문/예약/불만접수 말만해!"
             )
 
         except OutputGuardrailTripwireTriggered as triggered:
